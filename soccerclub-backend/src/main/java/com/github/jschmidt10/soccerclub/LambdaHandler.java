@@ -1,7 +1,5 @@
 package com.github.jschmidt10.soccerclub;
 
-import java.io.OutputStream;
-
 /**
  * Handles a specific Lambda request.
  */
@@ -19,7 +17,6 @@ public interface LambdaHandler {
      * Handles the request.
      *
      * @param request
-     * @param outputStream
      */
-    void handle(LambdaProxyRequest request, OutputStream outputStream);
+    LambdaProxyResponse handle(LambdaProxyRequest request);
 }

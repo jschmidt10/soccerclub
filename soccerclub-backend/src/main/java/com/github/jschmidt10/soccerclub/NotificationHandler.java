@@ -1,17 +1,14 @@
 package com.github.jschmidt10.soccerclub;
 
-import java.io.OutputStream;
 import java.util.List;
 
 /**
  * Handles requests for fetching and storing notifications.
  */
 public class NotificationHandler implements LambdaHandler {
-    private final LambdaProxyResponseFactory rf;
     private final NotificationStream notificationStream;
 
-    public NotificationHandler(LambdaProxyResponseFactory rf, NotificationStream notificationStream) {
-        this.rf = rf;
+    public NotificationHandler(NotificationStream notificationStream) {
         this.notificationStream = notificationStream;
     }
 
@@ -24,18 +21,21 @@ public class NotificationHandler implements LambdaHandler {
     //
     // GET /notification/{sinceTimestamp}
     @Override
-    public void handle(LambdaProxyRequest request, OutputStream outputStream) {
+    public LambdaProxyResponse handle(LambdaProxyRequest request) {
         long sinceTimestamp;
-
         try {
             sinceTimestamp = Long.parseLong(request.getPath().substring("notification/".length()));
         } catch (Exception e) {
-            rf.writeResponse(Http.BAD_REQUEST, "You forgot to give us a timestamp with your notification request.", outputStream);
-            return;
+            return new LambdaProxyResponse(Http.BAD_REQUEST, "You forgot to give us a timestamp with your notification request.");
         }
 
-        List<Notification> notifications = notificationStream.get(sinceTimestamp);
+        List<Notification> notifications;
+        try {
+            notifications = notificationStream.get(sinceTimestamp);
+        } catch (Exception e) {
+            return new LambdaProxyResponse(Http.INTERNAL_ERROR, "An error occurred while fetching your notifications. Please try again.");
+        }
 
-        rf.writeResponse(Http.OK, notifications, outputStream);
+        return new LambdaProxyResponse(Http.OK, notifications);
     }
 }

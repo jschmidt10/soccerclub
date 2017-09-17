@@ -7,7 +7,6 @@ import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -16,44 +15,39 @@ import java.util.List;
  */
 public class Dispatcher implements RequestStreamHandler {
 
-    private final LambdaProxyResponseFactory rf = new LambdaProxyResponseFactory();
-    private final List<LambdaHandler> handlers = new LinkedList<>();
+    private static final NotFoundHandler NOT_FOUND_HANDLER = new NotFoundHandler();
+    private static final LambdaProxyResponse BAD_REQUEST = new LambdaProxyResponse(Http.BAD_REQUEST, "We could not parse your request. Be sure to go through the Lambda Proxy endpoint!");
 
-    public Dispatcher() {
-        this(System.getenv("TABLE"), System.getenv("NOTIFICATION_QUEUE"));
-    }
+    private final List<LambdaHandler> handlers;
 
-    public Dispatcher(String table, String notificationQueue) {
-        Preconditions.checkNotNull(table, "Must define a DynamoDB table to use.");
-        Preconditions.checkNotNull(notificationQueue, "Must define a notification queue to use.");
-
-        handlers.add(new NotificationHandler(rf, new DynamoNotificationStream(table, notificationQueue)));
-        handlers.add(new StatusHandler(rf));
+    public Dispatcher(List<LambdaHandler> handlers) {
+        Preconditions.checkNotNull(handlers, "The 'handlers' list cannot be null.");
+        this.handlers = handlers;
     }
 
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
+        LambdaProxyResponse response;
+
         try {
             LambdaProxyRequest request = LambdaProxyRequest.parse(inputStream);
-
-            context.getLogger().log("httpMethod = " + request.getHttpMethod());
-            context.getLogger().log("path = " + request.getPath());
-
-            handle(request, outputStream);
+            response = handle(request);
         } catch (Exception e) {
-            rf.writeResponse(Http.BAD_REQUEST, "We could not parse your request. Be sure to go through the Lambda Proxy endpoint!", outputStream);
+            response = BAD_REQUEST;
         }
+
+        response.writeJson(outputStream);
     }
 
     /*
      * Dispatches the request to the correct handler.
      */
-    private void handle(LambdaProxyRequest request, OutputStream outputStream) {
-        handlers
+    private LambdaProxyResponse handle(LambdaProxyRequest request) {
+        return handlers
                 .stream()
                 .filter(h -> h.handlesPath(request.getPath()))
                 .findFirst()
-                .orElseGet(() -> new NotFoundHandler(rf))
-                .handle(request, outputStream);
+                .orElse(NOT_FOUND_HANDLER)
+                .handle(request);
     }
 }

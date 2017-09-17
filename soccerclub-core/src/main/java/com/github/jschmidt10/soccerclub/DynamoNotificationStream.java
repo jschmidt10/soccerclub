@@ -1,5 +1,6 @@
 package com.github.jschmidt10.soccerclub;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
  */
 public class DynamoNotificationStream implements NotificationStream {
 
-    private final static String REGION = "us-east-1";
     private final static Map<String, String> ATTRIBUTE_NAMES;
 
     static {
@@ -42,7 +42,7 @@ public class DynamoNotificationStream implements NotificationStream {
         Preconditions.checkNotNull(table, "Must pass in a table");
         Preconditions.checkNotNull(queue, "Must pass in a queue");
 
-        this.dynamo = AmazonDynamoDBClientBuilder.standard().withRegion(REGION).build();
+        this.dynamo = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
         this.table = table;
         this.queue = new AttributeValue().withS(queue);
     }

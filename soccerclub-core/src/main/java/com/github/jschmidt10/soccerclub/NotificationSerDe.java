@@ -40,7 +40,6 @@ public class NotificationSerDe {
         boolean isSoccerOn;
 
         try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(bytes.array()))) {
-
             timestamp = input.readLong();
             message = input.readUTF();
             isSoccerOn = input.readBoolean();

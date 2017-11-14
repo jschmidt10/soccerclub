@@ -44,7 +44,7 @@ public class NotificationSerDe {
             message = input.readUTF();
             isSoccerOn = input.readBoolean();
         } catch (IOException e) {
-            throw new RuntimeException("Error occurred during Notificationd deserialization", e);
+            throw new RuntimeException("Error occurred during Notification deserialization", e);
         }
 
         return new Notification(timestamp, message, isSoccerOn);

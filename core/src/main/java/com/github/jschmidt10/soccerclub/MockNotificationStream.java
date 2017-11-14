@@ -26,12 +26,12 @@ public class MockNotificationStream implements NotificationStream {
     }
 
     @Override
-    public void addSubscrition(Subscription subscription) {
+    public void addSubscription(Subscription subscription) {
         subscriptions.add(subscription);
     }
 
     @Override
-    public boolean removeSubscrition(Subscription subscription) {
+    public boolean removeSubscription(Subscription subscription) {
         return subscriptions.remove(subscription);
     }
 }

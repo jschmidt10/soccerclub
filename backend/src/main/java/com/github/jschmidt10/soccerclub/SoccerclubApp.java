@@ -22,8 +22,11 @@ public class SoccerclubApp extends Dispatcher {
         Preconditions.checkNotNull(table, "Must define a DynamoDB table to use.");
         Preconditions.checkNotNull(notificationQueue, "Must define a notification queue to use.");
 
+        NotificationStream notificationStream = new DynamoNotificationStream(table, notificationQueue);
+
         List<LambdaHandler> handlers = new LinkedList<>();
-        handlers.add(new NotificationHandler(new DynamoNotificationStream(table, notificationQueue)));
+        handlers.add(new SaveNotificationHandler(notificationStream));
+        handlers.add(new GetNotificationHandler(notificationStream));
         handlers.add(new StatusHandler());
 
         return handlers;

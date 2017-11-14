@@ -38,6 +38,8 @@ public class DynamoNotificationStream implements NotificationStream {
     private final AttributeValue queue;
     private final AmazonDynamoDB dynamo;
 
+    private final Set<Subscription> subscriptions = new HashSet<>();
+
     public DynamoNotificationStream(String table, String queue) {
         Preconditions.checkNotNull(table, "Must pass in a table");
         Preconditions.checkNotNull(queue, "Must pass in a queue");
@@ -50,6 +52,7 @@ public class DynamoNotificationStream implements NotificationStream {
     @Override
     public void push(Notification notification) {
         dynamo.putItem(putRequest(notification));
+        subscriptions.forEach((s) -> s.notify(notification));
     }
 
     private PutItemRequest putRequest(Notification notification) {
@@ -93,12 +96,12 @@ public class DynamoNotificationStream implements NotificationStream {
     }
 
     @Override
-    public void addSubscrition(Subscription subscription) {
-
+    public void addSubscription(Subscription subscription) {
+        subscriptions.add(subscription);
     }
 
     @Override
-    public boolean removeSubscrition(Subscription subscription) {
-        return false;
+    public boolean removeSubscription(Subscription subscription) {
+        return subscriptions.remove(subscription);
     }
 }

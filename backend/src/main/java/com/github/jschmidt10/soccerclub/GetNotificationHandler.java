@@ -3,23 +3,23 @@ package com.github.jschmidt10.soccerclub;
 import java.util.List;
 
 /**
- * Handles requests for fetching and storing notifications.
+ * Handles requests for fetching notifications.
  */
-public class NotificationHandler implements LambdaHandler {
+public class GetNotificationHandler implements LambdaHandler {
     private final NotificationStream notificationStream;
 
-    public NotificationHandler(NotificationStream notificationStream) {
+    public GetNotificationHandler(NotificationStream notificationStream) {
         this.notificationStream = notificationStream;
     }
 
     @Override
     public boolean handlesPath(String path) {
-        return path.startsWith("notification");
+        return path.startsWith("notification/");
     }
 
     // Accepted HTTP requests
     //
-    // GET /notification/{sinceTimestamp}
+    // GET  /notification/{sinceTimestamp}
     @Override
     public LambdaProxyResponse handle(LambdaProxyRequest request) {
         long sinceTimestamp;

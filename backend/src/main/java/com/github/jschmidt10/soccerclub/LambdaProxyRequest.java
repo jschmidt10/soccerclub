@@ -25,8 +25,9 @@ public class LambdaProxyRequest {
 
         String path = node.get("pathParameters").get("proxy").asText();
         String httpMethod = node.get("httpMethod").asText();
+        String body = node.get("body").asText();
 
-        return new LambdaProxyRequest(path, httpMethod);
+        return new LambdaProxyRequest(path, httpMethod, body);
     }
 
     @Getter
@@ -34,4 +35,7 @@ public class LambdaProxyRequest {
 
     @Getter
     private final String httpMethod;
+
+    @Getter
+    private final String body;
 }

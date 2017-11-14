@@ -27,7 +27,7 @@ public interface NotificationStream {
      *
      * @param subscription
      */
-    void addSubscrition(Subscription subscription);
+    void addSubscription(Subscription subscription);
 
     /**
      * Removes a subscription from the notification stream.
@@ -35,5 +35,5 @@ public interface NotificationStream {
      * @param subscription
      * @return
      */
-    boolean removeSubscrition(Subscription subscription);
+    boolean removeSubscription(Subscription subscription);
 }
